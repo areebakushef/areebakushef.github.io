@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Areeba Kushef | AI Architect</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Rajdhani:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" type='text/css' href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://unpkg.com/typed.js@2.0.16/dist/typed.umd.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'cyber-black': '#02040a',
+                        'cyber-dark': '#0a0f1c',
+                        'neon-teal': '#00f3ff',
+                        'neon-purple': '#bc13fe',
+                        'prof-blue': '#00b4d8',
+                        'neon-pink': '#ff0055',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'], 
+                        tech: ['Rajdhani', 'sans-serif'],
+                    },
+                    animation: {
+                        'spotlight-pulse': 'spotlight 8s ease-in-out infinite alternate',
+                        'float': 'float 6s ease-in-out infinite',
+                        'scroll': 'scroll 20s linear infinite',
+                        'scan': 'scan 4s linear infinite',
+                    },
+                    keyframes: {
+                        spotlight: {
+                            '0%': { opacity: '0.5', transform: 'translateX(-50%) scale(1)' },
+                            '100%': { opacity: '0.8', transform: 'translateX(-50%) scale(1.1)' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        scroll: {
+                            '0%': { transform: 'translateX(0)' },
+                            '100%': { transform: 'translateX(-50%)' },
+                        },
+                        scan: {
+                            '0%': { backgroundPosition: '0% 0%' },
+                            '100%': { backgroundPosition: '0% 100%' },
+                        }
+                    }
+                },
+            },
+        };
+    </script>
+    <style>
+        /* --- CORE CSS --- */
+        body { background-color: #02040a; color: #e2e8f0; overflow-x: hidden; }
+        
+        #neural-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 1; }
+
+        /* TECH CARD STYLE */
+        .tech-card {
+            background: rgba(10, 15, 28, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 180, 216, 0.2);
+            position: relative;
+            overflow: hidden;
+            background-image: linear-gradient(rgba(0, 180, 216, 0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 180, 216, 0.05) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        .scan-line {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, transparent, rgba(0, 180, 216, 0.1), transparent);
+            background-size: 100% 50%;
+            animation: scan 3s linear infinite;
+            pointer-events: none;
+        }
+
+        .corner-bracket {
+            position: absolute; width: 15px; height: 15px;
+            border: 2px solid #00b4d8; transition: all 0.3s ease;
+        }
+        .tl { top: 0; left: 0; border-right: none; border-bottom: none; }
+        .tr { top: 0; right: 0; border-left: none; border-bottom: none; }
+        .bl { bottom: 0; left: 0; border-right: none; border-top: none; }
+        .br { bottom: 0; right: 0; border-left: none; border-top: none; }
+
+        .btn-clip {
+            clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
+            transition: all 0.3s ease;
+        }
+        .btn-clip:hover {
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+            transform: translateY(-2px);
+        }
+
+        .custom-cursor {
+            width: 20px; height: 20px; border: 2px solid #00b4d8; border-radius: 50%;
+            position: fixed; pointer-events: none; z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: width 0.2s, height 0.2s, background-color 0.2s, border-color 0.2s; mix-blend-mode: difference;
+        }
+        .custom-cursor.hovered { width: 50px; height: 50px; background-color: rgba(0, 180, 216, 0.1); border-color: #bc13fe; }
+
+        .holo-card {
+            background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.05); transition: all 0.4s ease;
+        }
+        .holo-card:hover {
+            background: rgba(0, 180, 216, 0.05); border-color: rgba(0, 180, 216, 0.4);
+            box-shadow: 0 0 20px rgba(0, 180, 216, 0.1); transform: translateY(-5px);
+        }
+
+        .skill-bubble {
+            display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 4px; font-family: 'Rajdhani', sans-serif; font-size: 0.9rem; color: #e2e8f0;
+            transition: all 0.3s ease; cursor: default; font-weight: 600; letter-spacing: 0.5px;
+        }
+        .skill-bubble:hover { background: rgba(0, 180, 216, 0.1); border-color: #00b4d8; }
+
+        .tilt-card { transform-style: preserve-3d; transform: perspective(1000px); }
+        .scroll-container { mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent); }
+        
+        /* New Class for Project Icons */
+        .project-icon-bg {
+            display: flex; justify-content: center; align-items: center;
+            background: #050a14;
+            position: relative;
+            overflow: hidden;
+        }
+        .project-icon-bg::after {
+            content: ''; position: absolute; width: 100px; height: 100px;
+            background: radial-gradient(circle, currentColor 0%, transparent 70%);
+            opacity: 0.1; filter: blur(20px);
+        }
+    </style>
+</head>
+<body class="cursor-none selection:bg-prof-blue selection:text-black font-sans"> 
+
+    <div id="cursor" class="custom-cursor hidden md:block"></div>
+    <canvas id="neural-canvas"></canvas>
+
+    <div class="fixed right-6 bottom-0 z-50 flex flex-col items-center gap-6 after:content-[''] after:w-[1px] after:h-24 after:bg-gray-500 after:mt-4 hidden md:flex">
+        <a href="https://github.com/areebakushef" class="text-gray-400 transition-all duration-300 hover:-translate-y-1 hover:text-[#bc13fe] hover:drop-shadow-[0_0_5px_#bc13fe] hover-trigger"><i class="fab fa-github text-xl"></i></a>
+        <a href="https://www.linkedin.com/in/areeba-kushef-105391210/" class="text-gray-400 transition-all duration-300 hover:-translate-y-1 hover:text-[#0077b5] hover:drop-shadow-[0_0_5px_#0077b5] hover-trigger"><i class="fab fa-linkedin text-xl"></i></a>
+        <a href="https://www.instagram.com/areeba._.malik11" class="text-gray-400 transition-all duration-300 hover:-translate-y-1 hover:text-[#E4405F] hover:drop-shadow-[0_0_5px_#E4405F] hover-trigger"><i class="fab fa-instagram text-xl"></i></a>
+        <a href="mailto:areebakushef@gmail.com" class="text-gray-400 transition-all duration-300 hover:-translate-y-1 hover:text-[#00f3ff] hover:drop-shadow-[0_0_5px_#00f3ff] hover-trigger"><i class="fas fa-envelope text-xl"></i></a>
+    </div>
+
+    <nav class="fixed top-0 w-full z-50 px-8 py-6 flex justify-between items-center backdrop-blur-md bg-cyber-black/70 border-b border-white/5">
+        <div class="text-2xl font-tech font-bold tracking-widest text-white group cursor-pointer hover-trigger">
+            AK<span class="text-prof-blue">.AI</span>
+        </div>
+        <div class="hidden md:flex gap-8 items-center">
+            <a href="#home" class="text-sm font-tech font-bold tracking-wide text-gray-400 hover:text-white hover:text-prof-blue transition-all hover-trigger">HOME</a>
+            <a href="#about" class="text-sm font-tech font-bold tracking-wide text-gray-400 hover:text-white hover:text-prof-blue transition-all hover-trigger">ABOUT</a>
+            <a href="#skills" class="text-sm font-tech font-bold tracking-wide text-gray-400 hover:text-white hover:text-prof-blue transition-all hover-trigger">SKILLS</a>
+            <a href="#projects" class="text-sm font-tech font-bold tracking-wide text-gray-400 hover:text-white hover:text-prof-blue transition-all hover-trigger">WORK</a>
+            <a href="#contact" class="px-6 py-2 border border-prof-blue text-prof-blue text-xs font-tech font-bold hover:bg-prof-blue hover:text-black transition-all hover-trigger btn-clip tracking-widest">CONNECT</a>
+        </div>
+    </nav>
+
+    <main class="relative z-10">
+        
+        <section id="home" class="min-h-screen flex flex-col justify-center items-center relative overflow-hidden">
+            <div class="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[80vw] h-[80vh] bg-prof-blue/10 blur-[100px] rounded-full pointer-events-none"></div>
+            
+            <div class="text-center z-30 pt-10 px-4 w-full max-w-5xl">
+                
+                <div class="tech-card p-12 md:p-20 rounded-sm relative tilt-element" data-tilt>
+                    <div class="scan-line"></div>
+                    <div class="absolute top-4 left-4 text-[10px] font-tech text-prof-blue/60 tracking-widest">ID: AK-01</div>
+                    <div class="absolute top-4 right-4 text-[10px] font-tech text-green-400/60 tracking-widest">STATUS: ONLINE</div>
+                    <div class="absolute bottom-4 left-4 text-[10px] font-tech text-gray-500 tracking-widest">LATENCY: 4ms</div>
+                    <div class="absolute bottom-4 right-4 text-[10px] font-tech text-gray-500 tracking-widest">SECURE_CONN</div>
+                    <div class="corner-bracket tl"></div><div class="corner-bracket tr"></div><div class="corner-bracket bl"></div><div class="corner-bracket br"></div>
+
+                    <div class="inline-flex items-center gap-3 mb-8 px-4 py-2 bg-black/40 border border-prof-blue/20 rounded-sm">
+                        <span class="relative flex h-2 w-2">
+                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-prof-blue opacity-75"></span>
+                          <span class="relative inline-flex rounded-full h-2 w-2 bg-prof-blue"></span>
+                        </span>
+                        <span class="text-prof-blue text-xs font-tech font-bold tracking-[0.2em] uppercase">Open to Work</span>
+                    </div>
+                    
+                    <h1 class="text-5xl md:text-7xl font-tech font-black mb-4 text-white leading-none tracking-tight">
+                        Hi, I'm <span class="text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-500">Areeba Kushef</span>
+                    </h1>
+
+                    <div class="h-8 mb-8 flex justify-center items-center gap-3">
+                        <div class="h-[1px] w-12 bg-prof-blue/50 hidden md:block"></div>
+                        <span id="typed-output" class="text-lg md:text-2xl font-tech font-medium text-prof-blue tracking-widest uppercase"></span>
+                        <div class="h-[1px] w-12 bg-prof-blue/50 hidden md:block"></div>
+                    </div>
+                    
+                    <p class="text-base text-gray-400 max-w-xl mx-auto leading-relaxed mb-12 font-sans font-light">
+                        Architecting intelligent systems that bridge the gap between <b class="text-white font-medium">complex data</b> and <b class="text-white font-medium">human understanding</b>.
+                    </p>
+
+                    <div class="flex flex-col md:flex-row gap-6 justify-center items-center">
+                        <a href="#projects" class="btn-clip px-10 py-4 bg-prof-blue text-black font-tech font-bold tracking-widest hover:bg-white hover:shadow-[0_0_20px_rgba(0,180,216,0.5)] transition-all hover-trigger text-sm">
+                            VIEW PROJECT
+                        </a>
+                        <a href="#contact" class="btn-clip px-10 py-4 bg-transparent border border-gray-600 text-white font-tech font-bold tracking-widest hover:border-prof-blue hover:text-prof-blue hover:bg-prof-blue/5 transition-all hover-trigger text-sm">
+                            CONNECT
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+
+             <div class="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce flex flex-col items-center gap-2 opacity-40 hover:opacity-100 transition-opacity cursor-pointer">
+                <span class="text-[10px] font-tech tracking-[0.3em] text-prof-blue writing-mode-vertical">SCROLL</span>
+                <i class="fas fa-chevron-down text-prof-blue text-xs"></i>
+            </div>
+        </section>
+
+        <div class="py-8 bg-black border-y border-white/5 scroll-container overflow-hidden relative z-20">
+            <div class="flex animate-scroll w-[200%]">
+                <div class="flex gap-20 min-w-[50%] justify-around items-center opacity-40 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-500">
+                    <i class="devicon-python-plain text-4xl"></i><i class="devicon-tensorflow-original text-4xl"></i><i class="devicon-pytorch-original text-4xl"></i><i class="devicon-docker-plain text-4xl"></i><i class="devicon-amazonwebservices-plain-wordmark text-4xl"></i><i class="devicon-postgresql-plain text-4xl"></i><i class="devicon-git-plain text-4xl"></i>
+                </div>
+                <div class="flex gap-20 min-w-[50%] justify-around items-center opacity-40 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-500">
+                    <i class="devicon-python-plain text-4xl"></i><i class="devicon-tensorflow-original text-4xl"></i><i class="devicon-pytorch-original text-4xl"></i><i class="devicon-docker-plain text-4xl"></i><i class="devicon-amazonwebservices-plain-wordmark text-4xl"></i><i class="devicon-postgresql-plain text-4xl"></i><i class="devicon-git-plain text-4xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <section id="about" class="py-32 bg-cyber-black relative z-20 border-y border-white/5">
+            <div class="container mx-auto px-6">
+                <div class="flex flex-col md:flex-row gap-16 items-center">
+                    <div class="tilt-element relative w-full max-w-sm h-[450px] cursor-pointer hover-trigger" data-tilt>
+                        <div class="absolute inset-0 bg-cyber-dark border border-white/10 overflow-hidden group shadow-[0_0_40px_rgba(0,0,0,0.5)]">
+                            <img src="pic.png" onerror="this.src='https://placehold.co/400x500/1a1a1a/FFF?text=Areeba'" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700" alt="Profile">
+                            <div class="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black via-black/90 to-transparent">
+                                <h3 class="text-2xl font-tech font-bold text-white">Areeba Kushef</h3>
+                                <p class="text-prof-blue font-tech font-medium text-sm mb-2 tracking-widest">AI ARCHITECT</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex-1">
+                        <h2 class="text-4xl font-tech font-black text-white mb-6 flex items-center gap-4">
+                            <span class="w-1 h-12 bg-prof-blue"></span>
+                            ABOUT ME
+                        </h2>
+                        <p class="text-lg text-gray-300 font-sans leading-relaxed mb-8 font-light">
+                            I'm not just a developer; I'm a <span class="text-prof-blue font-medium">tech enthusiast</span> obsessed with how Artificial Intelligence can solve real-world problems. 
+                            <br><br>
+                            My journey involves building scalable backends, training complex ML models, and focusing on preprocessing and feature engineering to support scalable systems.
+                        </p>
+                        
+                        <div class="flex flex-col items-start gap-8">
+                            <a href="AREEBA KUSHEF.resume6(latest).pdf" target="_blank" class="btn-clip inline-flex items-center gap-3 px-8 py-4 bg-prof-blue text-black font-tech font-bold tracking-widest hover:bg-white transition-all duration-300 hover:shadow-[0_0_30px_rgba(0,180,216,0.4)] hover-trigger group text-sm">
+                                DOWNLOAD CV 
+                                <i class="fas fa-download transform group-hover:translate-y-1 transition-transform"></i>
+                            </a>
+
+                            <div class="flex items-center gap-8 mt-2">
+                                <a href="https://github.com/areebakushef" target="_blank" class="text-gray-400 transition-all duration-300 hover:scale-110 hover:text-[#bc13fe] hover:drop-shadow-[0_0_10px_#bc13fe] hover-trigger" title="GitHub"><i class="fab fa-github text-4xl"></i></a>
+                                <a href="https://www.linkedin.com/in/areeba-kushef-105391210/" target="_blank" class="text-gray-400 transition-all duration-300 hover:scale-110 hover:text-[#0077b5] hover:drop-shadow-[0_0_10px_#0077b5] hover-trigger" title="LinkedIn"><i class="fab fa-linkedin text-4xl"></i></a>
+                                <a href="https://www.instagram.com/areeba._.malik11" target="_blank" class="text-gray-400 transition-all duration-300 hover:scale-110 hover:text-[#E4405F] hover:drop-shadow-[0_0_10px_#E4405F] hover-trigger" title="Instagram"><i class="fab fa-instagram text-4xl"></i></a>
+                                <a href="mailto:areebakushef@gmail.com" class="text-gray-400 transition-all duration-300 hover:scale-110 hover:text-[#00f3ff] hover:drop-shadow-[0_0_10px_#00f3ff] hover-trigger" title="Email"><i class="fas fa-envelope text-4xl"></i></a>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="skills" class="relative py-32 overflow-hidden bg-transparent">
+            <div class="container mx-auto px-6 relative z-10">
+                <div class="text-center mb-16">
+                    <span class="text-gray-500 text-xs font-tech font-bold tracking-[0.3em] uppercase">System Capabilities</span>
+                    <h2 class="text-4xl md:text-5xl font-tech font-bold text-white mt-2">TECHNICAL STACK</h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="holo-card p-8 group animate-float"><div class="flex items-center gap-4 mb-6"><i class="fas fa-brain text-2xl text-prof-blue"></i><h3 class="text-xl font-tech font-bold text-white">AI & Machine Learning</h3></div><div class="flex flex-wrap gap-3"><div class="skill-bubble"><i class="devicon-tensorflow-original text-orange-500"></i> TensorFlow</div><div class="skill-bubble"><i class="devicon-pytorch-original text-red-500"></i> PyTorch</div><div class="skill-bubble"><i class="devicon-keras-plain text-red-600"></i> Keras</div><div class="skill-bubble"><i class="devicon-opencv-plain text-green-500"></i> OpenCV</div><div class="skill-bubble"><i class="fas fa-eye"></i> YOLOv8</div><div class="skill-bubble"><i class="fas fa-file-alt"></i> OCR</div><div class="skill-bubble"><i class="fas fa-chart-line"></i> XGBoost</div><div class="skill-bubble"><i class="devicon-scikitlearn-plain text-orange-300"></i> Scikit-Learn</div></div></div>
+                    <div class="holo-card p-8 group animate-float" style="animation-delay: 1s;"><div class="flex items-center gap-4 mb-6"><i class="fas fa-server text-2xl text-neon-purple"></i><h3 class="text-xl font-tech font-bold text-white">Backend Engineering</h3></div><div class="flex flex-wrap gap-3"><div class="skill-bubble"><i class="devicon-python-plain text-yellow-400"></i> Python</div><div class="skill-bubble"><i class="devicon-c-plain text-blue-500"></i> C</div><div class="skill-bubble"><i class="devicon-fastapi-plain text-teal-400"></i> FastAPI</div><div class="skill-bubble"><i class="devicon-django-plain text-green-700"></i> Django</div><div class="skill-bubble"><i class="devicon-flask-original text-white"></i> Flask</div><div class="skill-bubble"><i class="fas fa-link"></i> LangChain</div><div class="skill-bubble"><i class="fas fa-server"></i> Uvicorn</div></div></div>
+                    <div class="holo-card p-8 group animate-float" style="animation-delay: 2s;"><div class="flex items-center gap-4 mb-6"><i class="fas fa-cloud text-2xl text-white"></i><h3 class="text-xl font-tech font-bold text-white">Cloud & DevOps</h3></div><div class="flex flex-wrap gap-3"><div class="skill-bubble"><i class="devicon-amazonwebservices-plain-wordmark text-orange-400"></i> AWS</div><div class="skill-bubble"><i class="devicon-googlecloud-plain text-blue-400"></i> GCP</div><div class="skill-bubble"><i class="devicon-docker-plain text-blue-500"></i> Docker</div><div class="skill-bubble"><i class="devicon-linux-plain"></i> Linux</div><div class="skill-bubble"><i class="devicon-git-plain text-orange-600"></i> Git</div><div class="skill-bubble"><i class="fas fa-infinity"></i> CI/CD</div></div></div>
+                    <div class="holo-card p-8 group animate-float" style="animation-delay: 0.5s;"><div class="flex items-center gap-4 mb-6"><i class="fas fa-database text-2xl text-blue-400"></i><h3 class="text-xl font-tech font-bold text-white">Databases</h3></div><div class="flex flex-wrap gap-3"><div class="skill-bubble"><i class="devicon-postgresql-plain text-blue-400"></i> PostgreSQL</div><div class="skill-bubble"><i class="devicon-mysql-plain text-orange-500"></i> MySQL</div><div class="skill-bubble"><i class="devicon-mongodb-plain text-green-500"></i> MongoDB</div><div class="skill-bubble"><i class="devicon-amazonwebservices-plain-wordmark text-orange-400"></i> DynamoDB</div><div class="skill-bubble"><i class="devicon-firebase-plain text-yellow-500"></i> Firebase</div><div class="skill-bubble"><i class="devicon-redis-plain text-red-500"></i> Redis</div></div></div>
+                    <div class="holo-card p-8 group animate-float" style="animation-delay: 1.5s;"><div class="flex items-center gap-4 mb-6"><i class="fas fa-tools text-2xl text-neon-pink"></i><h3 class="text-xl font-tech font-bold text-white">Tools & Frontend</h3></div><div class="flex flex-wrap gap-3"><div class="skill-bubble"><i class="fas fa-brain"></i> OpenAI API</div><div class="skill-bubble"><i class="devicon-postman-plain text-orange-500"></i> Postman</div><div class="skill-bubble"><i class="fas fa-bolt text-yellow-400"></i> n8n/Make</div><div class="skill-bubble"><i class="devicon-nextjs-original"></i> Next.js</div><div class="skill-bubble"><i class="devicon-tailwindcss-original text-teal-400"></i> Tailwind</div><div class="skill-bubble"><i class="devicon-figma-plain text-purple-400"></i> Figma</div></div></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="projects" class="py-32 bg-cyber-dark/50 border-y border-white/5">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16">
+                    <span class="text-prof-blue text-xs font-tech font-bold tracking-[0.3em] uppercase">Selected Works</span>
+                    <h2 class="text-4xl md:text-5xl font-tech font-bold text-white mt-2">FEATURED PROJECTS</h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    
+                    <div class="tilt-element group relative h-[380px] rounded-sm overflow-hidden border border-white/10 shadow-lg hover:shadow-prof-blue/20 transition-all duration-300" data-tilt>
+                        <div class="h-[45%] project-icon-bg text-prof-blue group-hover:text-white transition-colors">
+                            <i class="fas fa-leaf text-8xl drop-shadow-[0_0_15px_rgba(0,180,216,0.5)]"></i>
+                        </div>
+                        <div class="h-[55%] p-6 bg-[#0a0f1c] relative flex flex-col">
+                            <h3 class="text-xl font-tech font-bold text-white mb-2 group-hover:text-prof-blue transition-colors">Self-Learning Greenhouse</h3>
+                            <p class="text-gray-400 text-xs mb-4 font-sans line-clamp-3">Backend Machine learning logic to optimize greenhouse climate conditions in real-time.</p>
+                            <div class="flex flex-wrap gap-2 mt-auto mb-4">
+                                <span class="text-[10px] font-bold text-prof-blue bg-prof-blue/10 px-2 py-1 rounded-sm font-tech">Python</span>
+                                <span class="text-[10px] font-bold text-prof-blue bg-prof-blue/10 px-2 py-1 rounded-sm font-tech">ML</span>
+                            </div>
+                            <a href="#" class="absolute bottom-6 right-6 w-10 h-10 bg-white/5 rounded-full flex items-center justify-center text-white hover:bg-prof-blue hover:text-black transition-all"><i class="fas fa-arrow-up-right"></i></a>
+                        </div>
+                    </div>
+
+                    <div class="tilt-element group relative h-[380px] rounded-sm overflow-hidden border border-white/10 shadow-lg hover:shadow-neon-purple/20 transition-all duration-300" data-tilt>
+                        <div class="h-[45%] project-icon-bg text-neon-purple group-hover:text-white transition-colors">
+                            <i class="fas fa-book text-8xl drop-shadow-[0_0_15px_rgba(188,19,254,0.5)]"></i>
+                        </div>
+                        <div class="h-[55%] p-6 bg-[#0a0f1c] relative flex flex-col">
+                            <h3 class="text-xl font-tech font-bold text-white mb-2 group-hover:text-neon-purple transition-colors">Library Management</h3>
+                            <p class="text-gray-400 text-xs mb-4 font-sans line-clamp-3">Built using FastAPI with PostgreSQL for CRUD operations and user management.</p>
+                            <div class="flex flex-wrap gap-2 mt-auto mb-4">
+                                <span class="text-[10px] font-bold text-neon-purple bg-neon-purple/10 px-2 py-1 rounded-sm font-tech">FastAPI</span>
+                                <span class="text-[10px] font-bold text-neon-purple bg-neon-purple/10 px-2 py-1 rounded-sm font-tech">SQL</span>
+                            </div>
+                            <a href="#" class="absolute bottom-6 right-6 w-10 h-10 bg-white/5 rounded-full flex items-center justify-center text-white hover:bg-neon-purple hover:text-black transition-all"><i class="fas fa-arrow-up-right"></i></a>
+                        </div>
+                    </div>
+
+                    <div class="tilt-element group relative h-[380px] rounded-sm overflow-hidden border border-white/10 shadow-lg hover:shadow-neon-teal/20 transition-all duration-300" data-tilt>
+                        <div class="h-[45%] project-icon-bg text-neon-teal group-hover:text-white transition-colors">
+                            <i class="fas fa-network-wired text-8xl drop-shadow-[0_0_15px_rgba(0,243,255,0.5)]"></i>
+                        </div>
+                        <div class="h-[55%] p-6 bg-[#0a0f1c] relative flex flex-col">
+                            <h3 class="text-xl font-tech font-bold text-white mb-2 group-hover:text-neon-teal transition-colors">AWS IoT Ecosystem</h3>
+                            <p class="text-gray-400 text-xs mb-4 font-sans line-clamp-3">Engineered backend using AWS IoT Core, Lambda, API Gateway to manage smart home streams.</p>
+                            <div class="flex flex-wrap gap-2 mt-auto mb-4">
+                                <span class="text-[10px] font-bold text-neon-teal bg-neon-teal/10 px-2 py-1 rounded-sm font-tech">AWS</span>
+                                <span class="text-[10px] font-bold text-neon-teal bg-neon-teal/10 px-2 py-1 rounded-sm font-tech">Lambda</span>
+                            </div>
+                            <a href="#" class="absolute bottom-6 right-6 w-10 h-10 bg-white/5 rounded-full flex items-center justify-center text-white hover:bg-neon-teal hover:text-black transition-all"><i class="fas fa-arrow-up-right"></i></a>
+                        </div>
+                    </div>
+
+                    <div class="tilt-element group relative h-[380px] rounded-sm overflow-hidden border border-white/10 shadow-lg hover:shadow-neon-pink/20 transition-all duration-300" data-tilt>
+                        <div class="h-[45%] project-icon-bg text-neon-pink group-hover:text-white transition-colors">
+                            <i class="fas fa-microphone-lines text-8xl drop-shadow-[0_0_15px_rgba(255,0,85,0.5)]"></i>
+                        </div>
+                        <div class="h-[55%] p-6 bg-[#0a0f1c] relative flex flex-col">
+                            <h3 class="text-xl font-tech font-bold text-white mb-2 group-hover:text-neon-pink transition-colors">Text-to-Speech App</h3>
+                            <p class="text-gray-400 text-xs mb-4 font-sans line-clamp-3">Flask backend with Whisper API to convert user text into audio.</p>
+                            <div class="flex flex-wrap gap-2 mt-auto mb-4">
+                                <span class="text-[10px] font-bold text-neon-pink bg-neon-pink/10 px-2 py-1 rounded-sm font-tech">Flask</span>
+                                <span class="text-[10px] font-bold text-neon-pink bg-neon-pink/10 px-2 py-1 rounded-sm font-tech">Whisper</span>
+                            </div>
+                            <a href="#" class="absolute bottom-6 right-6 w-10 h-10 bg-white/5 rounded-full flex items-center justify-center text-white hover:bg-neon-pink hover:text-black transition-all"><i class="fas fa-arrow-up-right"></i></a>
+                        </div>
+                    </div>
+
+                    <div class="tilt-element group relative h-[380px] rounded-sm overflow-hidden border border-white/10 shadow-lg hover:shadow-prof-blue/20 transition-all duration-300" data-tilt>
+                        <div class="h-[45%] project-icon-bg text-prof-blue group-hover:text-white transition-colors">
+                            <i class="fab fa-youtube text-8xl drop-shadow-[0_0_15px_rgba(0,180,216,0.5)]"></i>
+                        </div>
+                        <div class="h-[55%] p-6 bg-[#0a0f1c] relative flex flex-col">
+                            <h3 class="text-xl font-tech font-bold text-white mb-2 group-hover:text-prof-blue transition-colors">YouTube Summarizer</h3>
+                            <p class="text-gray-400 text-xs mb-4 font-sans line-clamp-3">Backend app using Flask and OpenAI for summarizing YouTube videos via prompts.</p>
+                            <div class="flex flex-wrap gap-2 mt-auto mb-4">
+                                <span class="text-[10px] font-bold text-prof-blue bg-prof-blue/10 px-2 py-1 rounded-sm font-tech">OpenAI</span>
+                                <span class="text-[10px] font-bold text-prof-blue bg-prof-blue/10 px-2 py-1 rounded-sm font-tech">Flask</span>
+                            </div>
+                            <a href="#" class="absolute bottom-6 right-6 w-10 h-10 bg-white/5 rounded-full flex items-center justify-center text-white hover:bg-prof-blue hover:text-black transition-all"><i class="fas fa-arrow-up-right"></i></a>
+                        </div>
+                    </div>
+
+                    <div class="tilt-element group relative h-[380px] rounded-sm overflow-hidden border border-white/10 shadow-lg hover:shadow-neon-purple/20 transition-all duration-300" data-tilt>
+                        <div class="h-[45%] project-icon-bg text-neon-purple group-hover:text-white transition-colors">
+                            <i class="fas fa-bolt text-8xl drop-shadow-[0_0_15px_rgba(188,19,254,0.5)]"></i>
+                        </div>
+                        <div class="h-[55%] p-6 bg-[#0a0f1c] relative flex flex-col">
+                            <h3 class="text-xl font-tech font-bold text-white mb-2 group-hover:text-neon-purple transition-colors">Electric Meter OCR</h3>
+                            <p class="text-gray-400 text-xs mb-4 font-sans line-clamp-3">Implemented backend logic to read electric meters using YOLOv8 and OpenCV.</p>
+                            <div class="flex flex-wrap gap-2 mt-auto mb-4">
+                                <span class="text-[10px] font-bold text-neon-purple bg-neon-purple/10 px-2 py-1 rounded-sm font-tech">YOLOv8</span>
+                                <span class="text-[10px] font-bold text-neon-purple bg-neon-purple/10 px-2 py-1 rounded-sm font-tech">OpenCV</span>
+                            </div>
+                            <a href="#" class="absolute bottom-6 right-6 w-10 h-10 bg-white/5 rounded-full flex items-center justify-center text-white hover:bg-neon-purple hover:text-black transition-all"><i class="fas fa-arrow-up-right"></i></a>
+                        </div>
+                    </div>
+
+                    <div class="tilt-element group relative h-[380px] rounded-sm overflow-hidden border border-white/10 shadow-lg hover:shadow-neon-teal/20 transition-all duration-300" data-tilt>
+                        <div class="h-[45%] project-icon-bg text-neon-teal group-hover:text-white transition-colors">
+                            <i class="fas fa-language text-8xl drop-shadow-[0_0_15px_rgba(0,243,255,0.5)]"></i>
+                        </div>
+                        <div class="h-[55%] p-6 bg-[#0a0f1c] relative flex flex-col">
+                            <h3 class="text-xl font-tech font-bold text-white mb-2 group-hover:text-neon-teal transition-colors">Eng-French Dubbing</h3>
+                            <p class="text-gray-400 text-xs mb-4 font-sans line-clamp-3">Python backend integrating OpenAI and ElevenLabs APIs for voice translation and cloning.</p>
+                            <div class="flex flex-wrap gap-2 mt-auto mb-4">
+                                <span class="text-[10px] font-bold text-neon-teal bg-neon-teal/10 px-2 py-1 rounded-sm font-tech">ElevenLabs</span>
+                                <span class="text-[10px] font-bold text-neon-teal bg-neon-teal/10 px-2 py-1 rounded-sm font-tech">OpenAI</span>
+                            </div>
+                            <a href="#" class="absolute bottom-6 right-6 w-10 h-10 bg-white/5 rounded-full flex items-center justify-center text-white hover:bg-neon-teal hover:text-black transition-all"><i class="fas fa-arrow-up-right"></i></a>
+                        </div>
+                    </div>
+
+                    <div class="tilt-element group relative h-[380px] rounded-sm overflow-hidden border border-white/10 shadow-lg hover:shadow-neon-pink/20 transition-all duration-300" data-tilt>
+                        <div class="h-[45%] project-icon-bg text-neon-pink group-hover:text-white transition-colors">
+                            <i class="fas fa-fingerprint text-8xl drop-shadow-[0_0_15px_rgba(255,0,85,0.5)]"></i>
+                        </div>
+                        <div class="h-[55%] p-6 bg-[#0a0f1c] relative flex flex-col">
+                            <h3 class="text-xl font-tech font-bold text-white mb-2 group-hover:text-neon-pink transition-colors">Speaker ID ML</h3>
+                            <p class="text-gray-400 text-xs mb-4 font-sans line-clamp-3">Trained and deployed model via RESTful API for audio-based speaker recognition using SVM.</p>
+                            <div class="flex flex-wrap gap-2 mt-auto mb-4">
+                                <span class="text-[10px] font-bold text-neon-pink bg-neon-pink/10 px-2 py-1 rounded-sm font-tech">SVM</span>
+                                <span class="text-[10px] font-bold text-neon-pink bg-neon-pink/10 px-2 py-1 rounded-sm font-tech">Librosa</span>
+                            </div>
+                            <a href="#" class="absolute bottom-6 right-6 w-10 h-10 bg-white/5 rounded-full flex items-center justify-center text-white hover:bg-neon-pink hover:text-black transition-all"><i class="fas fa-arrow-up-right"></i></a>
+                        </div>
+                    </div>
+
+                    <div class="tilt-element group relative h-[380px] rounded-sm overflow-hidden border border-white/10 shadow-lg hover:shadow-prof-blue/20 transition-all duration-300" data-tilt>
+                        <div class="h-[45%] project-icon-bg text-prof-blue group-hover:text-white transition-colors">
+                            <i class="fas fa-layer-group text-8xl drop-shadow-[0_0_15px_rgba(0,180,216,0.5)]"></i>
+                        </div>
+                        <div class="h-[55%] p-6 bg-[#0a0f1c] relative flex flex-col">
+                            <h3 class="text-xl font-tech font-bold text-white mb-2 group-hover:text-prof-blue transition-colors">Uno Card Classifier</h3>
+                            <p class="text-gray-400 text-xs mb-4 font-sans line-clamp-3">Packaged ML model into an API for classifying Uno cards.</p>
+                            <div class="flex flex-wrap gap-2 mt-auto mb-4">
+                                <span class="text-[10px] font-bold text-prof-blue bg-prof-blue/10 px-2 py-1 rounded-sm font-tech">ML API</span>
+                                <span class="text-[10px] font-bold text-prof-blue bg-prof-blue/10 px-2 py-1 rounded-sm font-tech">Python</span>
+                            </div>
+                            <a href="#" class="absolute bottom-6 right-6 w-10 h-10 bg-white/5 rounded-full flex items-center justify-center text-white hover:bg-prof-blue hover:text-black transition-all"><i class="fas fa-arrow-up-right"></i></a>
+                        </div>
+                    </div>
+
+                    <div class="tilt-element group relative h-[380px] rounded-sm overflow-hidden border border-white/10 shadow-lg hover:shadow-neon-purple/20 transition-all duration-300" data-tilt>
+                        <div class="h-[45%] project-icon-bg text-neon-purple group-hover:text-white transition-colors">
+                            <i class="fas fa-id-badge text-8xl drop-shadow-[0_0_15px_rgba(188,19,254,0.5)]"></i>
+                        </div>
+                        <div class="h-[55%] p-6 bg-[#0a0f1c] relative flex flex-col">
+                            <h3 class="text-xl font-tech font-bold text-white mb-2 group-hover:text-neon-purple transition-colors">Real-Time Face Rec</h3>
+                            <p class="text-gray-400 text-xs mb-4 font-sans line-clamp-3">Built a real-time backend pipeline for facial recognition from webcam feed.</p>
+                            <div class="flex flex-wrap gap-2 mt-auto mb-4">
+                                <span class="text-[10px] font-bold text-neon-purple bg-neon-purple/10 px-2 py-1 rounded-sm font-tech">OpenCV</span>
+                                <span class="text-[10px] font-bold text-neon-purple bg-neon-purple/10 px-2 py-1 rounded-sm font-tech">Real-time</span>
+                            </div>
+                            <a href="#" class="absolute bottom-6 right-6 w-10 h-10 bg-white/5 rounded-full flex items-center justify-center text-white hover:bg-neon-purple hover:text-black transition-all"><i class="fas fa-arrow-up-right"></i></a>
+                        </div>
+                    </div>
+
+                    <div class="tilt-element group relative h-[380px] rounded-sm overflow-hidden border border-white/10 shadow-lg hover:shadow-neon-teal/20 transition-all duration-300" data-tilt>
+                        <div class="h-[45%] project-icon-bg text-neon-teal group-hover:text-white transition-colors">
+                            <i class="fas fa-globe text-8xl drop-shadow-[0_0_15px_rgba(0,243,255,0.5)]"></i>
+                        </div>
+                        <div class="h-[55%] p-6 bg-[#0a0f1c] relative flex flex-col">
+                            <h3 class="text-xl font-tech font-bold text-white mb-2 group-hover:text-neon-teal transition-colors">IEEE Website Revamp</h3>
+                            <p class="text-gray-400 text-xs mb-4 font-sans line-clamp-3">Contributed primarily to backend improvements for performance and functionality.</p>
+                            <div class="flex flex-wrap gap-2 mt-auto mb-4">
+                                <span class="text-[10px] font-bold text-neon-teal bg-neon-teal/10 px-2 py-1 rounded-sm font-tech">Backend</span>
+                                <span class="text-[10px] font-bold text-neon-teal bg-neon-teal/10 px-2 py-1 rounded-sm font-tech">Web</span>
+                            </div>
+                            <a href="#" class="absolute bottom-6 right-6 w-10 h-10 bg-white/5 rounded-full flex items-center justify-center text-white hover:bg-neon-teal hover:text-black transition-all"><i class="fas fa-arrow-up-right"></i></a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="py-32 bg-cyber-black relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-t from-prof-blue/5 to-transparent pointer-events-none"></div>
+            <div class="container mx-auto px-6 relative z-10">
+                
+                <div class="max-w-4xl mx-auto tech-card p-10 md:p-16 rounded-sm shadow-2xl relative">
+                    <div class="scan-line"></div>
+                    
+                    <div class="absolute top-0 left-0 corner-bracket tl"></div>
+                    <div class="absolute top-0 right-0 corner-bracket tr"></div>
+                    <div class="absolute bottom-0 left-0 corner-bracket bl"></div>
+                    <div class="absolute bottom-0 right-0 corner-bracket br"></div>
+                    
+                    <div class="absolute top-4 left-6 text-[10px] font-tech text-prof-blue/60 tracking-widest">SIGNAL: STRONG</div>
+                    <div class="absolute top-4 right-6 text-[10px] font-tech text-green-400/60 tracking-widest">ENCRYPTION: ENABLED</div>
+
+                    <div class="text-center mb-12 relative z-10">
+                        <h2 class="text-4xl font-tech font-black text-white mb-4 tracking-tight">INITIATE CONNECTION</h2>
+                        <p class="text-gray-400 font-sans font-light">WANNA CONNECT?.</p>
+                    </div>
+
+                    <form id="contact-form" class="space-y-6 relative z-10">
+                        <input type="hidden" name="access_key" value="">
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="relative group">
+                                <label class="block text-prof-blue text-xs font-tech font-bold mb-2 tracking-widest ml-1">NAME</label>
+                                <input type="text" name="name" required class="w-full bg-cyber-dark/50 border border-prof-blue/20 rounded-sm p-4 text-white focus:outline-none focus:border-prof-blue focus:bg-cyber-dark transition-all font-tech tracking-wide placeholder-gray-600" placeholder="ENTER NAME">
+                            </div>
+                            <div class="relative group">
+                                <label class="block text-prof-blue text-xs font-tech font-bold mb-2 tracking-widest ml-1">Email</label>
+                                <input type="email" name="email" required class="w-full bg-cyber-dark/50 border border-prof-blue/20 rounded-sm p-4 text-white focus:outline-none focus:border-prof-blue focus:bg-cyber-dark transition-all font-tech tracking-wide placeholder-gray-600" placeholder="ENTER EMAIL">
+                            </div>
+                        </div>
+                        <div class="relative group">
+                            <label class="block text-prof-blue text-xs font-tech font-bold mb-2 tracking-widest ml-1">MESSAGE</label>
+                            <textarea name="message" rows="4" required class="w-full bg-cyber-dark/50 border border-prof-blue/20 rounded-sm p-4 text-white focus:outline-none focus:border-prof-blue focus:bg-cyber-dark transition-all font-tech tracking-wide placeholder-gray-600" placeholder="ENTER MESSAGE PARAMETERS..."></textarea>
+                        </div>
+                        
+                        <div id="result" class="text-center text-xs font-tech tracking-widest hidden"></div>
+
+                        <div class="text-center mt-8">
+                            <button type="submit" id="submit-btn" class="btn-clip py-4 px-12 bg-prof-blue text-black font-tech font-bold tracking-[0.2em] hover:bg-white hover:shadow-[0_0_20px_rgba(0,180,216,0.6)] transition-all duration-300 transform hover:-translate-y-1">
+                                TRANSMIT MESSAGE
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </section>
+
+        <footer class="py-8 border-t border-white/5 text-center text-gray-500 text-sm font-medium">
+            <p>&copy; 2024 Areeba Kushef.</p>
+        </footer>
+
+    </main>
+
+    <script>
+        // --- 1. Typing Effect ---
+        new Typed('#typed-output', {
+            strings: ['AI Architect', 'Python Specialist', 'Problem Solver'],
+            typeSpeed: 50, backSpeed: 30, backDelay: 2000, loop: true
+        });
+
+        // --- 2. Custom Cursor & Tilt ---
+        const cursor = document.getElementById('cursor');
+        document.addEventListener('mousemove', (e) => { cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px'; });
+        
+        const tiltElements = document.querySelectorAll('[data-tilt]');
+        tiltElements.forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left; const y = e.clientY - rect.top;
+                const centerX = rect.width / 2; const centerY = rect.height / 2;
+                const rotateX = ((y - centerY) / centerY) * -5; const rotateY = ((x - centerX) / centerX) * 5;
+                if(card.children.length > 0) card.children[0].style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+                else card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+            });
+            card.addEventListener('mouseleave', () => { 
+                if(card.children.length > 0) card.children[0].style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)';
+                else card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)';
+            });
+        });
+
+        // --- 3. CONTACT FORM LOGIC (Web3Forms) ---
+        const form = document.getElementById('contact-form');
+        const result = document.getElementById('result');
+        const submitBtn = document.getElementById('submit-btn');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            submitBtn.innerText = "TRANSMITTING...";
+            submitBtn.disabled = true;
+            result.classList.add('hidden');
+
+            const formData = new FormData(form);
+            const object = Object.fromEntries(formData);
+            const json = JSON.stringify(object);
+
+            fetch('https://api.web3forms.com/submit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: json
+            })
+            .then(async (response) => {
+                let json = await response.json();
+                if (response.status == 200) {
+                    result.innerHTML = ">> MESSAGE RECEIVED SUCCESSFULLY <<";
+                    result.classList.remove('hidden');
+                    result.classList.add('text-green-400');
+                    form.reset();
+                } else {
+                    console.log(response);
+                    result.innerHTML = json.message;
+                    result.classList.remove('hidden');
+                    result.classList.add('text-red-500');
+                }
+            })
+            .catch(error => {
+                console.log(error);
+                result.innerHTML = ">> TRANSMISSION ERROR. CHECK CONNECTION. <<";
+                result.classList.remove('hidden');
+                result.classList.add('text-red-500');
+            })
+            .then(function() {
+                submitBtn.innerText = "TRANSMIT MESSAGE";
+                submitBtn.disabled = false;
+                setTimeout(() => { result.classList.add('hidden'); }, 5000);
+            });
+        });
+
+        // --- 4. Threads Animation ---
+        (function() {
+            const canvas = document.getElementById('neural-canvas');
+            const ctx = canvas.getContext('2d');
+            let width, height, particles = [];
+            const particleCount = 100; const connectionDistance = 150;
+
+            function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
+            window.addEventListener('resize', resize); resize();
+
+            class Particle {
+                constructor() {
+                    this.x = Math.random() * width; this.y = Math.random() * height;
+                    this.vx = (Math.random() - 0.5) * 0.3; this.vy = (Math.random() - 0.5) * 0.3;
+                    this.size = Math.random() * 1.5 + 0.5;
+                }
+                update() {
+                    this.x += this.vx; this.y += this.vy;
+                    if (this.x < 0 || this.x > width) this.vx *= -1;
+                    if (this.y < 0 || this.y > height) this.vy *= -1;
+                }
+                draw() { ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fillStyle = '#00b4d8'; ctx.fill(); }
+            }
+
+            function init() { particles = []; for (let i = 0; i < particleCount; i++) particles.push(new Particle()); }
+
+            function animate() {
+                ctx.clearRect(0, 0, width, height);
+                for (let i = 0; i < particles.length; i++) {
+                    particles[i].update(); particles[i].draw();
+                    for (let j = i + 1; j < particles.length; j++) {
+                        const dx = particles[i].x - particles[j].x; const dy = particles[i].y - particles[j].y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        if (distance < connectionDistance) {
+                            const opacity = 1 - (distance / connectionDistance);
+                            ctx.beginPath(); ctx.strokeStyle = `rgba(0, 180, 216, ${opacity * 0.5})`;
+                            ctx.lineWidth = 0.5; ctx.moveTo(particles[i].x, particles[i].y);
+                            ctx.lineTo(particles[j].x, particles[j].y); ctx.stroke(); ctx.closePath();
+                        }
+                    }
+                }
+                requestAnimationFrame(animate);
+            }
+            init(); animate();
+        })();
+    </script>
+</body>
+</html>
